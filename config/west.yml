@@ -4,6 +4,14 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: cormoran
       url-base: https://github.com/cormoran
+    - name: mctechnology17
+      url-base: https://github.com/mctechnology17
+    - name: caksoylar # Example for an RGB battery widget
+      url-base: https://github.com/caksoylar
+    - name: gpeye
+      url-base: https://github.com/GPeye
+    - name: M165437
+      url-base: https://github.com/M165437
   projects:
     - name: eyelash_sofle
       url: https://github.com/a741725193/zmk-sofle
@@ -27,5 +35,20 @@ manifest:
     - name: zmk-module-runtime-input-processor
       remote: cormoran
       revision: dbf92f764de8b6ffd60bf5850514302875fe2570
+    - name: zmk-config
+      remote: mctechnology17
+      revision: main
+    - name: zmk-rgbled-widget
+      remote: caksoylar
+      revision: main
+    - name: nice-view-gem
+      remote: M165437
+      revision: v0.3.0
+    - name: zmk-nice-oled
+      remote: mctechnology17
+      revision: main
+    - name: hammerbeam-slideshow
+      remote: gpeye
+      revision: main
   self:
     path: config
