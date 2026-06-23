@@ -4,8 +4,6 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: cormoran
       url-base: https://github.com/cormoran
-    - name: mctechnology17
-      url-base: https://github.com/mctechnology17
   projects:
     - name: eyelash_sofle
       url: https://github.com/a741725193/zmk-sofle
@@ -29,8 +27,5 @@ manifest:
     - name: zmk-module-runtime-input-processor
       remote: cormoran
       revision: dbf92f764de8b6ffd60bf5850514302875fe2570
-    - name: zmk-config
-      remote: mctechnology17
-      revision: main
   self:
     path: config
