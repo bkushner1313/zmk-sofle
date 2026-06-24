@@ -1,6 +1,27 @@
+# Build artifacts
 build/
-zmk/
+artifacts/
+outputs/
+
+# ZMK
+zephyr/
+!zephyr/module.yml
+
+# West managed directories
+.west/
 modules/
 tools/
-.west/
-.omo
+
+# West projects from config/west.yml
+eyelash_sofle/
+zmk/
+zmk-behavior-runtime-sensor-rotate/
+zmk-module-ble-management/
+zmk-module-battery-history/
+zmk-module-settings-rpc/
+zmk-module-runtime-input-processor/
+zmk-config/
+zmk-rgbled-widget/
+nice-view-gem/
+zmk-nice-oled/
+hammerbeam-slideshow/

@@ -28,8 +28,7 @@ set -euo pipefail
 RUNTIME="${RUNTIME:-docker}" # Could be docker or podman
 IMG="${ZMK_IMAGE:-docker.io/zmkfirmware/zmk-build-arm:4.1-branch}"
 ENV="-e CMAKE_PREFIX_PATH=/zmk/zephyr:${CMAKE_PREFIX_PATH:-}"
-COMMAND="$RUNTIME run --rm --workdir /zmk -v $(pwd):/zmk -v /tmp:/temp $ENV $IMG"
-BUILD_CONFIG="${BUILD_CONFIG:-build.yaml}"
+BUILD_CONFIG="${BUILD_CONFIG:-}"
 INCREMENTAL="${INCREMENTAL:-false}" # Set to true to skip -p (pristine) flag for faster incremental builds
 
 log_info() {
@@ -58,6 +57,18 @@ zmk-*) KEYBOARD=${SCRIPT_DIR_NAME#zmk-} ;;
   KEYBOARD="${KEYBOARD:-$SCRIPT_DIR_NAME}"
   ;;
 esac
+
+# Always anchor paths and container mount to the project directory where this script lives.
+PROJECT_DIR="${PROJECT_DIR:-$SCRIPT_DIR}"
+cd "$PROJECT_DIR"
+COMMAND="$RUNTIME run --rm --workdir /zmk -v ${PROJECT_DIR}:/zmk -v /tmp:/temp $ENV $IMG"
+
+if [ -z "$BUILD_CONFIG" ]; then
+  BUILD_CONFIG="$PROJECT_DIR/build.yaml"
+fi
+WEST_FILE="${WEST_FILE:-$PROJECT_DIR/config/west.yml}"
+
+OUTPUT_DIR="${OUTPUT_DIR:-$PROJECT_DIR/outputs}"
 
 # Parse YAML file and extract build configurations
 # Returns: board|shield|snippet|cmake-args|artifact-name for each build
@@ -126,7 +137,7 @@ parse_build_config() {
 
 # Parse west.yml and extract project names (these become directories)
 parse_west_projects() {
-  local west_file="${1:-config/west.yml}"
+  local west_file="${1:-$WEST_FILE}"
 
   if [ ! -f "$west_file" ]; then
     log_error "West manifest file not found: $west_file"
@@ -219,7 +230,13 @@ build_target() {
       # Execute build
       $COMMAND west build "${build_args[@]}" -- "${cmake_args_array[@]}"
 
-      check_build_artifact "./build/${artifact_name}/zephyr/zmk.uf2" "${artifact_name} build"
+      local built_uf2="./build/${artifact_name}/zephyr/zmk.uf2"
+      check_build_artifact "$built_uf2" "${artifact_name} build"
+
+      # Export UF2 files to a single project-level output directory.
+      mkdir -p "$OUTPUT_DIR"
+      cp "$built_uf2" "$OUTPUT_DIR/${artifact_name}.uf2"
+      log_info "Exported ${artifact_name} to $OUTPUT_DIR/${artifact_name}.uf2"
 
       local end_time
       end_time=$(date +%s)
@@ -413,7 +430,7 @@ clean_all() {
 
 # Generate/update .gitignore based on west.yml
 update_gitignore() {
-  log_info "Generating .gitignore from config/west.yml..."
+  log_info "Generating .gitignore from $WEST_FILE..."
 
   local gitignore_file=".gitignore"
   local temp_file="${gitignore_file}.tmp"
@@ -423,6 +440,7 @@ update_gitignore() {
 # Build artifacts
 build/
 artifacts/
+outputs/
 
 # ZMK
 zephyr/
@@ -433,7 +451,7 @@ zephyr/
 modules/
 tools/
 
-# West projects from config/west.yml
+# West projects from west manifest
 EOF
 
   # Add project directories from west.yml
@@ -446,9 +464,24 @@ EOF
   log_success "Updated .gitignore with $(wc -l <"$gitignore_file") entries"
 }
 
+# Keep .gitignore in sync with west manifest updates.
+sync_gitignore_if_needed() {
+  local gitignore_file="$PROJECT_DIR/.gitignore"
+
+  # If the west manifest is missing, skip automatic sync.
+  if [ ! -f "$WEST_FILE" ]; then
+    return 0
+  fi
+
+  if [ ! -f "$gitignore_file" ] || [ "$WEST_FILE" -nt "$gitignore_file" ]; then
+    log_info "Detected west manifest changes; syncing .gitignore..."
+    update_gitignore
+  fi
+}
+
 # Copy build artifacts to a defined directory
 copy_artifacts() {
-  DEST="${1:-./artifacts}"
+  DEST="${1:-$OUTPUT_DIR}"
   mkdir -p "$DEST"
   local copied=0
 
@@ -497,6 +530,9 @@ Environment Variables:
   RUNTIME         Container runtime (default: podman, can be docker)
   ZMK_IMAGE       ZMK build image (default: docker.io/zmkfirmware/zmk-build-arm:4.1-branch)
   BUILD_CONFIG    Build configuration file (default: build.yaml)
+  WEST_FILE       West manifest file (default: config/west.yml)
+  OUTPUT_DIR      Export directory for UF2 files (default: ./outputs)
+  AUTO_GITIGNORE_SYNC  Auto-update .gitignore when west manifest changes (default: true)
   INCREMENTAL     Skip pristine builds for faster rebuilds (default: false)
 
 Examples:
@@ -507,7 +543,7 @@ Examples:
   $0 clean my_keyboard_left                     # Clean specific target
   $0 clean_all                                  # Clean all west dependencies
   $0 gitignore                                  # Update .gitignore from west.yml
-  $0 copy                                       # Copy artifacts to ./artifacts
+  $0 copy                                       # Copy artifacts to ./outputs
   $0 copy /path/to/dir                          # Copy artifacts to custom directory
   INCREMENTAL=true $0 build my_keyboard_left    # Faster incremental build
   BUILD_CONFIG=custom.yaml $0 build             # Use custom build config
@@ -547,6 +583,15 @@ fi
 
 # Restore positional parameters
 set -- "${ARGS[@]}"
+
+# Auto-sync .gitignore for normal command runs when west.yml changes.
+if [ "${AUTO_GITIGNORE_SYNC:-true}" = "true" ] &&
+  [ "$1" != "gitignore" ] &&
+  [ "$1" != "help" ] &&
+  [ "$1" != "--help" ] &&
+  [ "$1" != "-h" ]; then
+  sync_gitignore_if_needed
+fi
 
 case "$1" in
 init)
