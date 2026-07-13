@@ -1,41 +1,24 @@
-#
-# Copyright (c) 2024 The ZMK Contributors
-# SPDX-License-Identifier: MIT
-#
-
-if SHIELD_EYELASH_SOFLE_LEFT
+if SHIELD_EYELASH_SOFLE_CENTRAL_DONGLE
 
 config ZMK_KEYBOARD_NAME
-    default "Eyelash Sofle"
+    default "E_Solfe-Dongle"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
 
-endif # SHIELD_EYELASH_SOFLE_LEFT
+endif
 
 
-if SHIELD_EYELASH_SOFLE_LEFT || SHIELD_EYELASH_SOFLE_RIGHT
+if SHIELD_EYELASH_SOFLE_CENTRAL_DONGLE || SHIELD_EYELASH_SOFLE_PERIPHERAL_LEFT || SHIELD_EYELASH_SOFLE_PERIPHERAL_RIGHT
 
 config ZMK_SPLIT
     default y
 
-config BT_CTLR
-    default BT
-
-if USB
-
-config USB_NRFX
-    default y
-
-config USB_DEVICE_STACK
-    default y
-
-endif # USB
 
 if ZMK_DISPLAY
 
 config I2C
-   default y
+    default y
 
 config SSD1306
     default y
@@ -49,7 +32,7 @@ endif
 if SSD1306
 
 config LV_Z_VDB_SIZE
-   default 64
+    default 64
 
 config LV_DPI_DEF
     default 148
@@ -73,4 +56,4 @@ config LED_PWM
 
 endif # ZMK_BACKLIGHT
 
-endif # SHIELD_EYELASH_SOFLE_LEFT || SHIELD_EYELASH_SOFLE_RIGHT
+endif
