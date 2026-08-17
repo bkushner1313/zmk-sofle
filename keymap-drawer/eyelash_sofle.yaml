@@ -330,3 +330,7 @@ combos:
   k: '&soft_off'
 - p: [0, 13]
   k: $$mdi:keyboard-esc$$
+- p: [39, 32]
+  k: Ctl+Sft+$$mdi:arrow-left-bold$$
+- p: [39, 45]
+  k: Sft+Ctl+$$mdi:arrow-right-bold$$
