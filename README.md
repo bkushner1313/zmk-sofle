@@ -1,6 +1,5 @@
 # Sofle
 
-
 ## Update List
 
 - 2024/12/21

@@ -4,9 +4,23 @@ manifest:
       url-base: https://github.com/zmkfirmware
     - name: cormoran
       url-base: https://github.com/cormoran
+    - name: mctechnology17
+      url-base: https://github.com/mctechnology17
+    - name: caksoylar # Example for an RGB battery widget
+      url-base: https://github.com/caksoylar
+    - name: gpeye
+      url-base: https://github.com/GPeye
+    - name: M165437
+      url-base: https://github.com/M165437
+    - name: tokyo2006
+      url-base: https://github.com/tokyo2006
+    - name: englmaxi
+      url-base: https://github.com/englmaxi
+    - name: urob
+      url-base: https://github.com/urob
   projects:
     - name: eyelash_sofle
-      url: https://github.com/a741725193/zmk-sofle
+      url: https://github.com/a741725193/zmk-sofle-dongle
       revision: main
     - name: zmk
       remote: cormoran
@@ -17,7 +31,7 @@ manifest:
       revision: main
     - name: zmk-module-ble-management
       remote: cormoran
-      revision: 851661cd21f2aded8ec649da86e01a207dc4b973
+      revision: zmk-v0.3.0.0
     - name: zmk-module-battery-history
       remote: cormoran
       revision: main
@@ -26,6 +40,33 @@ manifest:
       revision: main
     - name: zmk-module-runtime-input-processor
       remote: cormoran
-      revision: dbf92f764de8b6ffd60bf5850514302875fe2570
+      revision: zmk-v0.3.0.0
+    - name: zmk-config
+      remote: mctechnology17
+      revision: main
+    - name: zmk-rgbled-widget
+      remote: caksoylar
+      revision: main
+    - name: nice-view-gem
+      remote: M165437
+      revision: v0.3.0
+    - name: zmk-nice-oled
+      remote: mctechnology17
+      revision: main
+    - name: hammerbeam-slideshow
+      remote: gpeye
+      revision: main
+    - name: mario-peripheral-animation
+      remote: gpeye
+      revision: main
+    - name: prospector-zmk-module
+      remote: tokyo2006
+      revision: micro_spi2
+    - name: zmk-dongle-display
+      remote: englmaxi
+      revision: v0.3
+    - name: zmk-helpers
+      remote: urob
+      revision: v0.3 # Should match ZMK release.
   self:
     path: config
